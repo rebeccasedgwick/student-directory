@@ -13,7 +13,8 @@ def input_students
         cohort = "Cohort unknown"
       end
 
-    @students << {name: name, cohort: cohort}
+    # @students << {name: name, cohort: cohort}
+    add_students(name, cohort)
       if @students.count > 1
         puts "Now we have #{@students.count} students"
       else
@@ -97,21 +98,30 @@ def load_students(filename = "students.csv")
   file = File.open(filename, "r")
   file.readlines.each do |line|
     name, cohort = line.chomp.split(",")
-    @students << {name: name, cohort: cohort}
+    add_students(name, cohort)
+    # @students << {name: name, cohort: cohort}
   end
   file.close
 end
 
 def try_load_students
   filename = ARGV.first
-  return if filename.nil?
-  if File.exists?(filename)
+  if filename.nil?
+    filename = "students.csv"
+    load_students(filename)
+    puts "Loaded #{@students.count} from #{filename}"
+    return
+  elsif File.exists?(filename)
     load_students(filename)
     puts "Loaded #{@students.count} from #{filename}"
   else
     puts "Sorry, #{filename} doesn't exist"
     exit
   end
+end
+
+def add_students(name, cohort)
+  @students << {name: name, cohort: cohort}
 end
 
 try_load_students
