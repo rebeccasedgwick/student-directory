@@ -33,8 +33,8 @@ end
 def print_menu
   puts "1. Input the students"
   puts "2. Show the students"
-  puts "3. Save the list to students.csv"
-  puts "4. Load the list from students.csv"
+  puts "3. Save the list"
+  puts "4. Load the list"
   puts "9. Exit"
 end
 
@@ -47,18 +47,25 @@ end
 def process(selection)
   case selection
     when "1"
+      puts "You entered #{selection}: Input the students"
       input_new_students
     when "2"
+      puts "You entered #{selection}: Show the students."
       show_students
     when "3"
-      save_students
+      puts "You entered #{selection}: Save the list. Please enter the file to save to:"
+      filename = STDIN.gets.chomp
+      filename.empty? ? save_students("students.csv") : save_students(filename)
     when "4"
-      load_students
+      puts "You entered #{selection}: Load the list. Please enter the file to load:"
+      filename = STDIN.gets.chomp
+      filename.empty? ? load_students("students.csv") : load_students(filename)
     when "9"
+      puts "You entered #{selection}: Exit"
       exit
     else
       puts "Please enter a valid selection"
-  end
+    end
 end
 
 def print_header
@@ -80,8 +87,8 @@ def print_footer
   end
 end
 
-def save_students
-  file = File.open("students.csv", "w")
+def save_students(filename)
+  file = File.open(filename, "w")
   @students.each do |student|
     student_data = [student[:name], student[:cohort]]
     csv_line = student_data.join(",")
@@ -90,8 +97,8 @@ def save_students
   file.close
 end
 
-def load_students(filename = "students.csv")
-  @students.clear # prevent data being added to array in duplicate each time method runs
+def load_students(filename)
+  @students.clear 
   file = File.open(filename, "r")
   file.readlines.each do |line|
     name, cohort = line.chomp.split(",")
@@ -104,7 +111,7 @@ end
 def try_load_students
   filename = ARGV.first
   if filename.nil?
-    load_students
+    load_students("students.csv")
     return
   elsif File.exists?(filename)
     load_students(filename)
