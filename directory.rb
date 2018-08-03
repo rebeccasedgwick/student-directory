@@ -54,18 +54,30 @@ def process(selection)
       show_students
     when "3"
       puts "You entered #{selection}: Save the list. Please enter the file to save to:"
-      filename = STDIN.gets.chomp
-      filename.empty? ? save_students("students.csv") : save_students(filename)
+      get_filename("save")
+      # filename = STDIN.gets.chomp
+      # filename.empty? ? save_students("students.csv") : save_students(filename)
     when "4"
       puts "You entered #{selection}: Load the list. Please enter the file to load:"
-      filename = STDIN.gets.chomp
-      filename.empty? ? load_students("students.csv") : load_students(filename)
+      get_filename("load")
+      # filename = STDIN.gets.chomp
+      # filename.empty? ? load_students("students.csv") : load_students(filename)
     when "9"
       puts "You entered #{selection}: Exit"
       exit
     else
       puts "Please enter a valid selection"
     end
+end
+
+def get_filename(function)
+  filename = STDIN.gets.chomp
+  case function
+    when "save"
+      filename.empty? ? save_students("students.csv") : save_students(filename)
+    when "load"
+      filename.empty? ? load_students("students.csv") : load_students(filename)
+  end
 end
 
 def print_header
@@ -98,7 +110,7 @@ def save_students(filename)
 end
 
 def load_students(filename)
-  @students.clear 
+  @students.clear
   file = File.open(filename, "r")
   file.readlines.each do |line|
     name, cohort = line.chomp.split(",")

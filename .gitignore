@@ -3,3 +3,6 @@ typos.rb
 
 # CSV of saved student data
 students.csv
+
+# Example file to test functionality of user choosing file to save to
+test.csv
