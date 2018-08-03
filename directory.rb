@@ -1,5 +1,7 @@
 require 'csv'
 @students = []
+DEFAULT_FILENAME = "students.csv"
+CENTERING_SIZE = 50
 
 def input_new_students
   puts "Please enter the names of the students"
@@ -9,15 +11,13 @@ def input_new_students
   while !name.empty?
     puts "Now please enter the student's cohort"
     cohort = STDIN.gets.chomp
-      if cohort.empty?
-        cohort = "Cohort unknown"
-      end
-    add_students(name, cohort)
-      if @students.count > 1
-        puts "Now we have #{@students.count} students"
-      else
-        puts "Now we have #{@students.count} student"
-      end
+    if cohort.empty?
+      cohort = "Cohort unknown"
+    end
+
+    add_student(name, cohort)
+
+    puts "Now we have #{pluralize(@students.count, "student")}"
 
     puts "Please enter the name of the student"
     name = STDIN.gets.chomp
@@ -46,76 +46,75 @@ def show_students
 end
 
 def process(selection)
+  print "You entered #{selection}: "
   case selection
     when "1"
-      puts "You entered #{selection}: Input the students"
+      puts "Input the students"
       input_new_students
     when "2"
-      puts "You entered #{selection}: Show the students."
+      puts "Show the students."
       show_students
     when "3"
-      puts "You entered #{selection}: Save the list. Please enter the file to save to:"
+      puts "Save the list. Please enter the file to save to:"
       get_filename("save")
     when "4"
-      puts "You entered #{selection}: Load the list. Please enter the file to load:"
+      puts "Load the list. Please enter the file to load:"
       get_filename("load")
     when "9"
-      puts "You entered #{selection}: Exit"
+      puts "Exit"
       exit
     else
       puts "Please enter a valid selection"
-    end
+  end
 end
 
 def get_filename(function)
   filename = STDIN.gets.chomp
+  filename = DEFAULT_FILENAME if filename.empty?
   case function
-    when "save"
-      filename.empty? ? save_students("students.csv") : save_students(filename)
-    when "load"
-      filename.empty? ? load_students("students.csv") : load_students(filename)
+  when "save" then save_students(filename)
+  when "load" then load_students(filename)
   end
 end
 
 def print_header
-  puts "The Students of Demo Academy".center(50)
-  puts "-".center(50, "-")
+  puts "The Students of Demo Academy".center(CENTERING_SIZE)
+  puts "-" * 50
 end
 
 def print_student_list
-  @students.each_with_index() do |student, i|
-    puts "#{i + 1}. #{student[:name]} (#{student[:cohort]} cohort)".center(50, " ")
+  @students.each_with_index do |student, i|
+    puts "#{i + 1}. #{student[:name]} (#{student[:cohort]} cohort)".center(CENTERING_SIZE, " ")
   end
 end
 
 def print_footer
-  if @students.count > 1
-    puts "Overall, we have #{@students.count} great students".center(50, "-")
-  else
-    puts "Overall, we have #{@students.count} great student".center(50, "-")
-  end
+  puts "Overall, we have #{pluralize(@students.count, "great student")}".center(CENTERING_SIZE, "-")
 end
 
 def save_students(filename)
-  csv_file = CSV.open(filename, "wb") do |csv|
-    @students.each { |student| csv << [student[:name], student[:cohort]]}
+  CSV.open(filename, "wb") do |csv|
+    @students.each do |student|
+      csv << [student[:name], student[:cohort]]
+    end
   end
-  csv_file
 end
 
 def load_students(filename)
   @students.clear
-  csv_file = CSV.foreach(filename) do |row|
-    @students << {name: row[0], cohort: row[1]}
+  if File.exist?(filename)
+    CSV.foreach(filename) do |row|
+      add_student(row[0], row[1])
+    end
   end
   puts "Loaded #{@students.count} from #{filename}"
-  csv_file
 end
 
 def try_load_students
   filename = ARGV.first
   if filename.nil?
-    load_students("students.csv")
+    File.write(DEFAULT_FILENAME, "")
+    load_students(DEFAULT_FILENAME)
     return
   elsif File.exists?(filename)
     load_students(filename)
@@ -125,8 +124,12 @@ def try_load_students
   end
 end
 
-def add_students(name, cohort)
+def add_student(name, cohort)
   @students << {name: name, cohort: cohort}
+end
+
+def pluralize(number, string)
+  number == 1 ? string : "#{string}s"
 end
 
 try_load_students
