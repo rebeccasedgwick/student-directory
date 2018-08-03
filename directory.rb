@@ -55,13 +55,9 @@ def process(selection)
     when "3"
       puts "You entered #{selection}: Save the list. Please enter the file to save to:"
       get_filename("save")
-      # filename = STDIN.gets.chomp
-      # filename.empty? ? save_students("students.csv") : save_students(filename)
     when "4"
       puts "You entered #{selection}: Load the list. Please enter the file to load:"
       get_filename("load")
-      # filename = STDIN.gets.chomp
-      # filename.empty? ? load_students("students.csv") : load_students(filename)
     when "9"
       puts "You entered #{selection}: Exit"
       exit
@@ -100,24 +96,26 @@ def print_footer
 end
 
 def save_students(filename)
-  file = File.open(filename, "w")
-  @students.each do |student|
-    student_data = [student[:name], student[:cohort]]
-    csv_line = student_data.join(",")
-    file.puts csv_line
+  file = File.open(filename, "w") do |file|
+    @students.each do |student|
+      student_data = [student[:name], student[:cohort]]
+      csv_line = student_data.join(",")
+      file.puts csv_line
+    end
+  file
   end
-  file.close
 end
 
 def load_students(filename)
   @students.clear
-  file = File.open(filename, "r")
+  file = File.open(filename, "r") do |file|
   file.readlines.each do |line|
     name, cohort = line.chomp.split(",")
     add_students(name, cohort)
   end
   puts "Loaded #{@students.count} from #{filename}"
-  file.close
+  file
+  end
 end
 
 def try_load_students
